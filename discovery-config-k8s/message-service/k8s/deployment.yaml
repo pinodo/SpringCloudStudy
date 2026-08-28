@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-service
+  template:
+    metadata:
+      labels:
+        app: message-service
+    spec:
+      serviceAccountName: default    # 위에서 권한을 부여한 SA 사용
+      containers:
+        - name: message-app
+          image: message-service:v1  # 로컬 빌드 이미지 사용
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+// 생성될 Protobuf용 패키지명 (생성되는 자바 패키지 아님)
+package com.example.proto;
+
+// 클래스 단위로 자바 코드 생성
+option java_multiple_files = true;
+
+// 생성될 자바 파일의 실제 패키지
+option java_package = "com.example.common.stock";
+
+// 서비스 정의 (Interface): 원격 프로시저 호출 인터페이스 명세 기술
+service StockService {
+  rpc CheckStock (ProductRequest) returns (StockResponse);
+  // Java 변환 시 모습 (StockResponse 응답은 responseObserver가 처리)
+	// public void checkStock(ProductRequest request, StreamObserver<StockResponse> responseObserver) { }
+}
+
+// 요청 패킷 구조체 (자바 코드 변경 시: Builder 패턴, Getter, Setter 생성)
+message ProductRequest {
+  string productId = 1;  // 이진 패킷 내부 필드 구분을 위한 고유 식별 태그 넘버
+}
+
+// 응답 패킷 구조체 (자바 코드 변경 시: Builder 패턴, Getter, Setter 생성)
+message StockResponse {
+  string productId = 1;
+  int32 quantity = 2;
+  bool inStock = 3;
+}

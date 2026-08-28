@@ -1,0 +1,5 @@
+rootProject.name = 'cqrs-multi-module'
+
+include 'module-jpa'
+include 'module-mapper'
+include 'module-api'

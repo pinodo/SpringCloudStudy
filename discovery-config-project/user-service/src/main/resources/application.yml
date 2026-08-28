@@ -1,0 +1,27 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: user-service
+  config:
+    import: "optional:configserver:http://localhost:8888/"
+  cloud:
+    bus:
+      id: ${spring.application.name}:${server.port:0}:${random.value} # 버스 내 인스턴스 고유 키 식별
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "busrefrech,health" # 수동 refresh 대신 busrefresh 엔드포인트 개방

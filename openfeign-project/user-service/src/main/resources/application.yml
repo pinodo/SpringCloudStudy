@@ -1,0 +1,11 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service # Eureka Server에 USER-SERVICE로 등록됨
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

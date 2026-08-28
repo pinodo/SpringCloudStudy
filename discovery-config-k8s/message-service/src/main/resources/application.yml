@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: message-service
+
+  # "optional:kubernetes:" 프로토콜을 사용해 K8s ConfigMap을 조회하겠다고 선언
+  config:
+    import: "optional:kubernetes:"
+
+  cloud:
+    kubernetes:
+      config:
+        name: message-config # 하위 configmap.yaml의 metadata.name과 일치해야 함
+        namespace: default
+      reload:
+        enabled: true # ConfigMap 변경 시 자동 감지 (Hot Reload) 활성화
+        mode: event # K8s Watch Event 감시 메커니즘 채택 (RBAC 권한 연동 필수)
+        # mode: polling       # 5초마다 알아서 가져오기
+        # period: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "refresh,health"

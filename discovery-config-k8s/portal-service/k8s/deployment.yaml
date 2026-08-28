@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-service
+  template:
+    metadata:
+      labels:
+        app: portal-service
+    spec:
+      containers:
+        - name: portal-app
+          image: portal-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

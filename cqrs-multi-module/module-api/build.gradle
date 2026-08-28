@@ -1,0 +1,7 @@
+dependencies {
+  implementation 'com.mysql:mysql-connector-j:8.0.33'
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+  implementation project(':module-jpa')
+  implementation project(':module-mapper')
+}

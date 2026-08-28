@@ -1,0 +1,10 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: module-jpa
+
+  jpa:
+    hibernate:
+      ddl-auto: update

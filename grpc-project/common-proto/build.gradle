@@ -1,0 +1,52 @@
+// Gradle이 .proto 파일을 인식하고 컴파일할 수 있도록 기능을 추가함
+// 플러그인은 '관리자' 역할, 실제 컴파일은 'protobuf' 블록에서 지정한 도구가 수행함
+plugins {
+  id 'com.google.protobuf' version '0.9.6'
+}
+
+// 일반 라이브러리 Jar 빌드
+bootJar { 
+  enabled = false 
+}
+jar { 
+  enabled = true 
+}
+
+dependencies {
+  // io.grpc 버전 통합 관리
+  implementation platform('io.grpc:grpc-bom:1.69.0')
+
+  // Netty Shaded (gRPC 통신 엔진)
+  // Protobuf (.proto 파일로 생성된 메시지 객체를 직렬화/역직렬화)
+  // Stub (실제 서비스 인터페이스와 비동기/동기 호출 코드 지원)
+  api 'io.grpc:grpc-netty-shaded'
+  api 'io.grpc:grpc-protobuf'
+  api 'io.grpc:grpc-stub'
+  
+  // Protobuf 컴파일러가 자동 생성하는 어노테이션(@javax.annotation.Generated 등) 참조용
+  compileOnly 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+  compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+}
+
+// protobuf 상세 설정
+protobuf {
+  // 컴파일러 지정 (플러그인에게 이 버전의 protoc를 다운받아 컴파일하라고 지시)
+  protoc {
+    artifact = 'com.google.protobuf:protoc:3.25.5'
+  }
+  
+  // gRPC 서비스 코드(ServiceGrpc, 통신 클래스 (Service/Stub))를 만들기 위한 플러그인
+  plugins {
+    grpc {
+      // protoc-gen-grpc-java 플러그인은 구체적 버전 명시 필요
+      artifact = 'io.grpc:protoc-gen-grpc-java:1.69.0'
+    }
+  }
+  
+  // 태스크 연결 (빌드 과정에서 'grpc' 플러그인을 모든 프로토 생성 작업에 적용함)
+  generateProtoTasks {
+    all()*.plugins { 
+      grpc { } 
+    }
+  }
+}

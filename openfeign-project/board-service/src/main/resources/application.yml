@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: board-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    "[com.example.board.client]": DEBUG # Feign 통신 상세 내역 확인을 위한 로그 등급 업

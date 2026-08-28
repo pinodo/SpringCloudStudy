@@ -1,0 +1,6 @@
+rootProject.name = 'openfeign-project'
+
+include 'common-module'
+include 'discovery-service'
+include 'user-service'
+include 'board-service'
