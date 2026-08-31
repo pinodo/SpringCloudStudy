@@ -1,0 +1,38 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: stock-service
+
+resilience4j:
+  retry:
+    retry-aspect-order: 1 # Retry가 1번(가장 바깥쪽)
+    instances:
+      marketService: # @Retry(name = "marketService")
+        maxAttempts: 3 # 총 3회 시도 (1회 호출 + 2회 재시도)
+        waitDuration: 1000ms # 재시도 간격 1초
+
+  circuitbreaker:
+    circuit-breaker-aspect-order: 2 # CircuitBreaker가 2번(안쪽)
+    instances:
+      marketService: # @CircuitBreaker(name = "marketService")
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED # 최근 몇 개를 보고 판단할까?
+        slidingWindowSize: 5 # 최근 5번 요청을 기준으로 판단
+        minimumNumberOfCalls: 3 # 최소 3번 호출 이후부터 계산
+        failureRateThreshold: 50 # 실패율 50% 이상이면 OPEN (차단)
+        waitDurationInOpenState: 10s # OPEN 상태에서 10초 대기 후 HALF_OPEN으로 전환
+        permittedNumberOfCallsInHalfOpenState: 3 # HALF_OPEN 상태에서 3번 허용해보고 결정
+
+management:
+  endpoint:
+    health:
+      show-details: always  # circuitBreaker OPEN / CLOSED 상세 상태 확인을 위해
+  endpoints:
+    web:
+      exposure:
+        include: health  # /actuator/health 엔드포인트 노출
+  health:
+    circuitbreakers:
+      enabled: true  # 헬스 체크 시 circuitbreakers 설정 보기

@@ -1,0 +1,4 @@
+rootProject.name = 'fault-project'
+
+include 'market-service'
+include 'stock-service'
