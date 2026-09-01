@@ -1,0 +1,5 @@
+rootProject.name = 'lb-project'
+
+include 'discovery-service'
+include 'gateway-service'
+include 'product-service'

@@ -1,0 +1,5 @@
+rootProject.name = 'filter-project'
+
+include 'discovery-service'
+include 'gateway-service'
+include 'payment-service'

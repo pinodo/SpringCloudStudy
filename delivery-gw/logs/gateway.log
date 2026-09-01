@@ -1,0 +1,22 @@
+2026-09-01T16:42:55.906+09:00  INFO 58018 --- [delivery-gw] [main] com.example.gw.DeliveryGwApplication     : Starting DeliveryGwApplication using Java 21.0.10 with PID 58018 (/Users/alvinkim/dev2/SpringCloudStudy/delivery-gw/build/classes/java/main started by alvinkim in /Users/alvinkim/dev2/SpringCloudStudy/delivery-gw)
+2026-09-01T16:42:55.907+09:00  INFO 58018 --- [delivery-gw] [main] com.example.gw.DeliveryGwApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-09-01T16:42:56.413+09:00  INFO 58018 --- [delivery-gw] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-09-01T16:42:56.414+09:00  INFO 58018 --- [delivery-gw] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-09-01T16:42:56.432+09:00  INFO 58018 --- [delivery-gw] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 8 ms. Found 0 Redis repository interfaces.
+2026-09-01T16:42:56.613+09:00  INFO 58018 --- [delivery-gw] [main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=6683ce68-92ce-39f5-8c86-d3ece799d2c6
+2026-09-01T16:42:56.901+09:00  INFO 58018 --- [delivery-gw] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8000 (http)
+2026-09-01T16:42:56.919+09:00  INFO 58018 --- [delivery-gw] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-01T16:42:56.919+09:00  INFO 58018 --- [delivery-gw] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-09-01T16:42:56.965+09:00  INFO 58018 --- [delivery-gw] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1038 ms
+2026-09-01T16:42:57.105+09:00  WARN 58018 --- [delivery-gw] [main] i.n.r.d.DnsServerAddressStreamProviders  : Can not find io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider in the classpath, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS. Check whether you have a dependency on 'io.netty:netty-resolver-dns-native-macos'
+2026-09-01T16:42:57.631+09:00  INFO 58018 --- [delivery-gw] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-01T16:42:57.676+09:00  INFO 58018 --- [delivery-gw] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8000 (http) with context path '/'
+2026-09-01T16:42:57.686+09:00  INFO 58018 --- [delivery-gw] [main] com.example.gw.DeliveryGwApplication     : Started DeliveryGwApplication in 2.064 seconds (process running for 2.364)
+2026-09-01T16:43:07.064+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-01T16:43:07.066+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-01T16:43:07.070+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2026-09-01T16:43:07.104+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] c.example.gw.filter.GlobalLoggingFilter  : Global Filter - Request Path: /delivery/status
+2026-09-01T16:43:07.104+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] c.example.gw.filter.GlobalLoggingFilter  : Global Filter - Request URI: http://localhost:8000/status
+2026-09-01T16:43:07.609+09:00  INFO 58018 --- [delivery-gw] [tomcat-handler-0] c.example.gw.filter.GlobalLoggingFilter  : Global Filter - Response Status: 200
+2026-09-01T16:45:00.339+09:00  INFO 58018 --- [delivery-gw] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-09-01T16:45:00.358+09:00  INFO 58018 --- [delivery-gw] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete

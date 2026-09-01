@@ -1,0 +1,33 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: delivery-gw
+
+  # Boot 4.1 Virtual Threads 활성화 (기존 Reactive Mono/Flux 없이 고성능 동기 처리)
+  threads:
+    virtual:
+      enabled: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health
+  endpoint:
+    gateway:
+      access: read-only
+
+logging:
+  level:
+    # GlobalLoggingFilter가 속한 패키지 경로 지정
+    "[com.example.gw.filter]": DEBUG
+  file:
+    # 로그를 저장할 파일 경로 지정
+    name: logs/gateway.log

@@ -1,0 +1,13 @@
+dependencies {
+  // Spring WebMVC
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+  
+  // Spring Actuator
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+  // Virtual Threads 기반 Gateway MVC 엔진
+  implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc'
+  
+  // Eureka Client
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}
