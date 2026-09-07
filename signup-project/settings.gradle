@@ -1,0 +1,5 @@
+rootProject.name = 'signup-project'
+
+include 'discovery-service'
+include 'gateway-service'
+include 'user-service'

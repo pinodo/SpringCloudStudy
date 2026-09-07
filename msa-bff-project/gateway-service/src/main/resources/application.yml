@@ -1,0 +1,69 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway-service
+
+  threads:
+    virtual:
+      enabled: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # 외부 인증 서버(Keycloak, Google, GitHub 등)와 통신하여 사용자를 인증(OIDC)하거나,
+  # 인증을 요청하고 토큰을 받아 관리하는 주체로 동작하게 만듦
+  security:
+    oauth2:
+      client:
+        # registration: 외부 인증 서버에 등록된 클라이언트 정보
+        registration:
+          # Spring Security 내부에서 OAuth2 클라이언트를 식별하는 고유 ID ({registrationId}로 치환됨)
+          keycloak-bff:
+            # Keycloak 관리자 콘솔에 등록된 Client ID & Secret
+            client-id: msa-bff-client
+            client-secret: zNXYVUDTRlmgcBjz1gLRUzjoWGI14bBG
+            # 인가 코드 부여 방식 채택 (표준 웹 보안 인증 흐름)
+            authorization-grant-type: authorization_code
+            # Keycloak 인증 성공 후 Authorization Code를 전달받을 게이트웨이의 콜백 URL 템플릿
+            # 런타임에 http://localhost:8000/login/oauth2/code/keycloak-bff 로 자동 완성됨
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            # 인증 완료 후 어떤 사용자 정보와 토큰 규격을 내려줄 것인가?
+            # openid: OIDC(OpenID Connect) 기반 인증 플로우로 동작하도록 선언 (있어야 Keycloak이 JWT 만듦)
+            # profile: preferred_username, name, family_name 등 JWT에 포함할 것
+            # email: email, email_verified를 JWT에 포함할 것
+            scope:
+              - openid
+              - profile
+              - email
+        # provider: 외부 인증 기관 정보
+        provider:
+          # registration의 공급자 정보 (registration의 이름과 매핑)
+          keycloak-bff:
+            issuer-uri: http://localhost:8080/realms/msa-shop
+            # Spring Security의 Authentication 객체(Principal.getName())에 바인딩할 클레임 필드 지정
+            # 디폴트는 sub(UUID)임
+            user-name-attribute: preferred_username
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: user-service-route
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/api/users/**
+              # BFF 핵심 필터: 세션의 액세스 토큰을 다운스트림 Bearer 헤더로 포워딩 해 줌
+              filters:
+                - TokenRelay
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

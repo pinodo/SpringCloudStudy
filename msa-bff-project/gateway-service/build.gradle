@@ -1,0 +1,13 @@
+dependencies {
+  // Gateway MVC
+  implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc'
+
+  // Eureka Client
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+  // BFF 구현: OAuth2 Client 및 일반 Servlet 기반 Redis 세션
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+  implementation 'org.springframework.session:spring-session-data-redis'
+}

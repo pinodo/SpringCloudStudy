@@ -1,0 +1,14 @@
+dependencies {
+  // WebMVC
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+  // Actuator
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+  // Spring Data JPA & MySQL
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  runtimeOnly 'com.mysql:mysql-connector-j'
+
+  // Eureka Client
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}

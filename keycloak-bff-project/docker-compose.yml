@@ -1,0 +1,22 @@
+# Keycloak 인증 서버 컨테이너로 띄우기
+
+services:
+  keycloak:
+    # Keycloak 최신 버전 사용 (Quay.io 공식 레지스트리)
+    image: quay.io/keycloak/keycloak:26.1.0
+    container_name: keycloak-server
+    
+    # 개발 환경(dev) 모드로 실행. 캐싱 비활성화 및 HTTP 허용
+    command: start-dev
+    
+    environment:
+      # 관리자 콘솔에 접속하기 위한 초기 ID/PW 설정
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      
+      # 게이트웨이나 리버스 프록시 뒤에서 HTTP로 통신할 때 필요한 설정
+      KC_PROXY_HEADERS: xforwarded
+      
+    ports:
+      # 호스트의 8080 포트를 컨테이너의 8080 포트와 연결
+      - "8080:8080"

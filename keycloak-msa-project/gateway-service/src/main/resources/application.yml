@@ -1,0 +1,52 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway-service
+
+  # Boot 4.1 Virtual Threads 활성화
+  threads:
+    virtual:
+      enabled: true
+
+  # Gateway MVC 라우트 설정
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: product-service-route
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/api/products/**
+            - id: admin-service-route
+              uri: lb://ADMIN-SERVICE
+              predicates:
+                - Path=/api/admin/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # 1. Issuer URI (발급자 확인)
+          # 이 토큰이 msa-shop Realm에서 만든 게 맞는지 검증
+          # 토큰 내부의 'iss' (Issuer) 필드 값이 이 주소와 일치하는지 확인
+          issuer-uri: http://localhost:8080/realms/msa-shop
+          # 2. JWK Set URI (서명 검증용 공개키 위치)
+          # 토큰의 서명이 위조되지 않았는지 확인하기 위해 Keycloak의 공개키를 가져와서 확인함
+          # Gateway는 이 주소로 요청을 보내 Keycloak이 현재 사용 중인 공개키 목록(JSON Web Key Set)을 로딩함
+          # 로딩된 공개키로 JWT의 서명(Signature)을 복호화하여 위변조 여부를 수학적으로 검증함
+          # 최초 jwk-set-uri를 통해 공개키를 받아와서 캐싱(저장)해 둔 후, 이후 요청부터는 캐싱된 공개키를 이용해 Keycloak 서버 없이 Gateway 혼자서 검증함
+          jwk-set-uri: http://localhost:8080/realms/msa-shop/protocol/openid-connect/certs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health

@@ -1,0 +1,22 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: admin-service
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/msa-shop
+          jwk-set-uri: http://localhost:8080/realms/msa-shop/protocol/openid-connect/certs
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

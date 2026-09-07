@@ -1,0 +1,54 @@
+services:
+  msa-mysql:
+    image: mysql:8.0
+    container_name: msa-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: keycloak_db  # MySQL이 켜지면서 자동으로 keycloak_db 생성
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # - --init-file=/data/init.sql # 컨테이너 내부 임시 파일 기반 초기화
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # 외부 파일 마운트 없이 인라인으로 msa_user_db 생성 스크립트 작성
+    configs:
+      - source: init_sql
+        # target: /data/init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.0
+    container_name: keycloak-server
+    ports:
+      - "8080:8080"
+    environment:
+      # 프로덕션 데이터베이스 정보 주입
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://msa-mysql:3306/keycloak_db?serverTimezone=UTC&characterEncoding=UTF-8
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      # 최초 구동 시 관리자 계정 정보 생성
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 1234
+    command: start-dev --http-port 8080
+    depends_on:
+      msa-mysql:
+        condition: service_healthy # MySQL의 Healthcheck가 정상(Healthy)일 때 실행
+
+configs:
+  init_sql:
+    content: |
+      CREATE DATABASE IF NOT EXISTS `msa_user_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+volumes:
+  mysql_data:

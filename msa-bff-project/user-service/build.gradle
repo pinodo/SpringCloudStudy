@@ -1,0 +1,15 @@
+dependencies {
+  // WebMVC
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+  // Spring Data JPA & MySQL
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  runtimeOnly 'com.mysql:mysql-connector-j'
+
+  // Eureka Client
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+  // JWT 검증용 OAuth2 Resource Server
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+}

@@ -1,0 +1,6 @@
+rootProject.name = 'keycloak-msa-project'
+
+include 'discovery-service'
+include 'gateway-service'
+include 'product-service'
+include 'admin-service'

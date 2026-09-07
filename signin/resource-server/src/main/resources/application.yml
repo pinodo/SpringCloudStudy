@@ -1,0 +1,13 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: resource-server
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak msa-shop 렐름의 토큰 발행자 URI 지정
+          issuer-uri: http://localhost:8080/realms/msa-shop
