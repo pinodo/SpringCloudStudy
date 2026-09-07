@@ -1,0 +1,55 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: stock-service
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/msa_stock_db?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: "${MYSQL_ROOT_PASSWORD}"
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  cloud:
+    function:
+      definition: stockControl
+    
+    stream:
+      bindings:
+        # 주문 생성 수신
+        stockControl-in-0:
+          destination: order-created-topic
+          group: stock-group
+          consumer:
+            max-attempts: 3
+        
+        # 재고 성공 발행 채널
+        stockReserved-out-0:
+          destination: stock-success-topic
+          content-type: application/json
+
+        # 재고 실패 발행 채널
+        stockFailed-out-0:
+          destination: stock-failure-topic
+          content-type: application/json
+      
+      rabbit:
+        bindings:
+          stockControl-in-0:
+            consumer:
+              binding-routing-key: 'order.created'
+              auto-bind-dlq: true
+              republish-to-dlq: true

@@ -1,0 +1,57 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-container
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --init-file=/data/init.sql
+    volumes:
+      - mysql_data:/var/lib/mysql
+    configs:
+      - source: init_sql
+        target: /data/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p", "${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+configs:
+  init_sql:
+    content: |
+      CREATE DATABASE IF NOT EXISTS `msa_order_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS `msa_stock_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      
+      CREATE TABLE IF NOT EXISTS `msa_stock_db`.`stocks` (
+          product_id VARCHAR(255) PRIMARY KEY,
+          quantity INT NOT NULL
+      );
+      
+      INSERT INTO `msa_stock_db`.`stocks` (product_id, quantity) 
+      VALUES ('apple', 10)
+      ON DUPLICATE KEY UPDATE quantity = 10;
+
+volumes:
+  mysql_data:

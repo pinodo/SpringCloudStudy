@@ -1,0 +1,64 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/msa_order_db?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: "${MYSQL_ROOT_PASSWORD}"
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  cloud:
+    function:
+      # 수신 함수 구분자: 세미콜론(;)
+      definition: stockSuccess;stockFailure
+
+    stream:
+      bindings:
+        # 주문 생성
+        orderCreated-out-0:
+          destination: order-created-topic
+          content-type: application/json
+
+        # 재고 차감 성공 수신
+        stockSuccess-in-0:
+          destination: stock-success-topic
+          group: order-stock-success-group
+          consumer:
+            max-attempts: 3
+
+        # 채고 차감 실패 수신
+        stockFailure-in-0:
+          destination: stock-failure-topic
+          group: order-stock-failure-group
+          consumer:
+            max-attempts: 3
+
+      rabbit:
+        bindings:
+          orderCreated-out-0:
+            producer:
+              routingKeyExpression: "'order.created'"
+          stockSuccess-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+          stockFailure-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true

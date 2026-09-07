@@ -1,0 +1,13 @@
+dependencies {
+  // common-module
+  implementation project(':common-module')
+
+  // WebMVC
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    
+  // Spring Cloud Stream
+  implementation 'org.springframework.cloud:spring-cloud-stream'
+  
+  // RabbitMQ Binder
+  implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
+}

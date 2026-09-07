@@ -1,0 +1,30 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+  
+  # Java 21 가상 스레드 활성화 (메시지 수신 및 I/O 블로킹 구간에서 처리량 극대화)
+  threads:
+    virtual:
+      enabled: true
+  
+  cloud:
+    stream:
+      bindings:
+        # 출력 바인딩 규칙: 채널명-out-인덱스 (이벤트 발행용)
+        orderCreated-out-0:
+          # Exchange 이름
+          destination: order-created-topic
+          content-type: application/json
+      
+      rabbit:
+        bindings:
+          # Spring Cloud Stream RabbitMQ 전용 바인더 세부 옵션
+          orderCreated-out-0:
+            producer:
+              # 메시지 헤더에 붙여줄 AMQP 라우팅 키(Routing Key)
+              # 설정 안하면 destination에 설정한 order-created-topic 사용
+              # 컨슈머 측에서 order.*나 order.# 처럼 원하는 이벤트만 선별해 큐로 바인딩(Subscribe)할 수 있음
+              routing-key-expression: "'order.created'"
