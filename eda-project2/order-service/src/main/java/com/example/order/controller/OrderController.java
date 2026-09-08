@@ -18,9 +18,9 @@ public class OrderController {
   
   private final OrderService orderService;
 
-  @PostMapping("/v2")
-  public ResponseEntity<String> createOrderV2(@RequestBody OrderCreatedRequest request) {
-    String orderId = orderService.createOrderV2(request);
-    return ResponseEntity.ok("[v2] Order Created: " + orderId);
+  @PostMapping("/v1")
+  public ResponseEntity<String> createOrderV1(@RequestBody OrderCreatedRequest request) {
+    String orderId = orderService.createOrderV1(request);
+    return ResponseEntity.ok("[v1] Order Created: " + orderId);
   }
 }

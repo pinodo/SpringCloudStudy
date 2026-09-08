@@ -25,7 +25,7 @@ public class OrderService {
   private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
-  public String createOrderV2(OrderCreatedRequest request) {
+  public String createOrderV1(OrderCreatedRequest request) {
     String orderId = UUID.randomUUID().toString();
 
     Order order = Order.builder()
