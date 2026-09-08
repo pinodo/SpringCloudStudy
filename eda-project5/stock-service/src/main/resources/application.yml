@@ -1,0 +1,82 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: stock-service
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/msa_stock_db?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: "${MYSQL_ROOT_PASSWORD}"
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  cloud:
+    function:
+      # 기존 V1 stockControl + V2 수신 함수 2종 등록
+      definition: stockControl;processStockDeductCommand;processStockRestoreCommand
+    
+    stream:
+      bindings:
+        # === [기존 V1 Choreography 바인딩 유지] ===
+        stockControl-in-0:
+          destination: order-created-topic
+          group: stock-group
+          consumer:
+            max-attempts: 3
+        
+        stockReserved-out-0:
+          destination: stock-success-topic
+          content-type: application/json
+
+        stockFailed-out-0:
+          destination: stock-failure-topic
+          content-type: application/json
+
+        # === [신규 V2 Orchestration 바인딩 추가] ===
+        # 1. 재고 차감 명령 수신 (Command In)
+        processStockDeductCommand-in-0:
+          destination: stock-deduct-command-topic
+          group: stock-command-group
+          consumer:
+            max-attempts: 3
+
+        # 2. 보상 트랜잭션 복구 명령 수신 (Compensating Command In)
+        processStockRestoreCommand-in-0:
+          destination: stock-restore-command-topic
+          group: stock-command-group
+          consumer:
+            max-attempts: 3
+
+        # 3. 오케스트레이터로 처리 결과 회신 (Reply Out)
+        stockReply-out-0:
+          destination: stock-reply-topic
+          content-type: application/json
+      
+      rabbit:
+        bindings:
+          stockControl-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+          # [신규] V2 Command DLQ 설정
+          processStockDeductCommand-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true
+          processStockRestoreCommand-in-0:
+            consumer:
+              auto-bind-dlq: true
+              republish-to-dlq: true

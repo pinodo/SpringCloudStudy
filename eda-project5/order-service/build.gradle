@@ -1,0 +1,21 @@
+dependencies {
+  // common-module
+  implementation project(':common-module')
+
+  // WebMVC
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    
+  // Spring Cloud Stream
+  implementation 'org.springframework.cloud:spring-cloud-stream'
+  
+  // RabbitMQ Binder
+  implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
+
+  // Data JPA & MySQL
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  runtimeOnly 'com.mysql:mysql-connector-j'
+
+  // Jackson Databind
+  implementation 'com.fasterxml.jackson.core:jackson-databind'
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+}

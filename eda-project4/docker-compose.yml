@@ -1,0 +1,119 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-container
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    command: 
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --init-file=/data/init.sql
+      # CDC/Debezium 연동 필수 Binlog 설정 (Binlog ROW 포맷 활성화)
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --binlog-row-image=FULL
+      - --server-id=1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    configs:
+      - source: init_sql
+        target: /data/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  debezium:
+    image: debezium/server:2.5
+    container_name: debezium-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      # 1. Source (MySQL Binlog) 설정
+      DEBEZIUM_SOURCE_CONNECTOR_CLASS: io.debezium.connector.mysql.MySqlConnector
+      DEBEZIUM_SOURCE_OFFSET_STORAGE_FILE_FILENAME: /tmp/offsets.dat
+      DEBEZIUM_SOURCE_OFFSET_FLUSH_INTERVAL_MS: "1000"
+      DEBEZIUM_SOURCE_HOSTNAME: mysql
+      DEBEZIUM_SOURCE_PORT: "3306"
+      DEBEZIUM_SOURCE_USER: root
+      DEBEZIUM_SOURCE_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      DEBEZIUM_SOURCE_SERVER_ID: "5400"
+      DEBEZIUM_SOURCE_TOPIC_PREFIX: cdc
+      DEBEZIUM_SOURCE_SCHEMA_HISTORY_INTERNAL_FILE_FILENAME: /tmp/schema_history.dat
+      DEBEZIUM_SOURCE_TABLE_INCLUDE_LIST: msa_order_db.outbox
+
+      # 2. Sink 메시지 브로커(RabbitMQ) 설정
+      DEBEZIUM_SINK_TYPE: rabbitmq
+      DEBEZIUM_SINK_RABBITMQ_CONNECTION_HOST: rabbitmq
+      DEBEZIUM_SINK_RABBITMQ_CONNECTION_PORT: "5672"
+      DEBEZIUM_SINK_RABBITMQ_CONNECTION_USERNAME: guest
+      DEBEZIUM_SINK_RABBITMQ_CONNECTION_PASSWORD: guest
+
+      # 3. Outbox Event Router Dynamic Routing 설정 (SMT)
+      DEBEZIUM_TRANSFORMS: outbox
+      DEBEZIUM_TRANSFORMS_OUTBOX_TYPE: io.debezium.transforms.outbox.EventRouter
+      # outbox 테이블의 'destination' 컬럼 값으로 목적지 토픽을 결정함
+      DEBEZIUM_TRANSFORMS_OUTBOX_ROUTE_BY_FIELD: destination
+      
+configs:
+  init_sql:
+    content: |
+      CREATE DATABASE IF NOT EXISTS `msa_order_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS `msa_stock_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      
+      -- 재고 테이블 및 초기 데이터
+      CREATE TABLE IF NOT EXISTS `msa_stock_db`.`stocks` (
+          product_id VARCHAR(255) PRIMARY KEY,
+          quantity INT NOT NULL
+      );
+      
+      INSERT INTO `msa_stock_db`.`stocks` (product_id, quantity) 
+      VALUES ('apple', 10)
+      ON DUPLICATE KEY UPDATE quantity = 10;
+
+      -- 주문 테이블
+      CREATE TABLE IF NOT EXISTS `msa_order_db`.`orders` (
+          order_id VARCHAR(255) PRIMARY KEY,
+          product_id VARCHAR(255) NOT NULL,
+          quantity INT NOT NULL,
+          status VARCHAR(50) NOT NULL
+      );
+
+      -- Outbox 테이블 (신규 테이블)
+      CREATE TABLE IF NOT EXISTS `msa_order_db`.`outbox` (
+          id VARCHAR(255) PRIMARY KEY,
+          aggregate_type VARCHAR(50) NOT NULL,
+          aggregate_id VARCHAR(255) NOT NULL,
+          destination VARCHAR(100) NOT NULL,
+          type VARCHAR(100) NOT NULL,
+          payload JSON NOT NULL,
+          status VARCHAR(20) NOT NULL,
+          created_at DATETIME NOT NULL
+      );
+
+volumes:
+  mysql_data:
