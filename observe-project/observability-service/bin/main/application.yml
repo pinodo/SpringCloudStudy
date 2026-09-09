@@ -1,0 +1,30 @@
+# 애플리케이션 이름 설정 (logback-spring.xml에서 사용)
+spring:
+  application:
+    name: observability-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  # 실습 검증용: 전체(100%) 분산 추적 수집
+  tracing:
+    sampling:
+      probability: 1.0
+  # Zipkin의 수신 엔드포인트
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+# Loki 전송 주소 (logback-spring.xml에서 사용)
+loki:
+  url: http://localhost:3100/loki/api/v1/push
